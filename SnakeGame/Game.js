@@ -77,7 +77,7 @@ export default class Game {
         return 1;
     }
 
-    isOutside() {
+    isOutside( cell ) {
         const {
             nbCellsX,
             nbCellsY
