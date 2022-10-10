@@ -71,7 +71,34 @@ export default class Snake {
         
     }
 
-    ateItself(){
-        return false;
+    ateItself() {
+        return this.tail.find(
+            cell => cell.x === this.head.x && cell.y === this.head.y
+        );
+    }
+
+
+    setDirection( direction ) {
+        if( direction === 'Up' && this.direction === 'Down' ) {
+            return;
+        }
+
+        if( direction === 'Down' && this.direction === 'Up' ) {
+            return;
+        }
+
+        if( direction === 'Left' && this.direction === 'Right' ) {
+            return;
+        }
+
+        if( direction === 'Right' && this.direction === 'Left' ) {
+            return;
+        }
+
+        this.direction = direction;
+    };
+
+    grow() {
+        this.size += 3;
     }
 }

@@ -33,6 +33,9 @@ export default class Game {
 
         this.running = false;
         this.nextMove = 0;
+        this.score = 0;
+
+        window.addEventListener( 'keydown', this.onKeyDown );
     };
 
     start() {
@@ -44,37 +47,71 @@ export default class Game {
         this.running = false;
     }
 
-    // loop gets executed every time the screen refreshes 60 times/seconds
+    // loop gets executed every 16.66 ms (assuming display refreshes 60 times/seconds)
     loop = ( time ) => {
         if( this.running ) {
             requestAnimationFrame( this.loop );
-
-            // we make suer to execute this block only at the game speed (once every 200 ms to start with)
+            
+            // we make sure to execute this block only at the game speed (once every 200 ms to start with)
             if( time >= this.nextMove ) {
                 this.nextMove = time + this.configuration.speed;
-                //console.log(new Date() );
-
+                
                 this.snake.move();
 
-                switch( this.checkState()) {
+                switch( this.checkState() ) {
                     case -1:
-                        alert( 'Game Over' );
+                        this.stop();
+                        alert( 'Game over' );
                         break;
+                    case 1:
+                        this.score += 100;
+                        this.grid.eat( this.snake.head );
+                        this.snake.grow();
+                        
+                        // all apples eaten?
+                        if( this.grid.isDone() ) {
+                            this.levelUp();
+                        }
+                        
+                        this.showScore();
                     default:
                         this.paint();
                 }
-                this.paint();
+
             }
         }
+    }
+
+    levelUp() {
+        this.configuration.level++;
+        this.score += 1000;
+
+        if( this.configuration.level > Constants.MAX_LEVEL) {
+            alert( 'Game won! You are the boss!!');
+            this.stop();
+        }
+
+        this.configuration.speed -= 7;
+        this.configuration.color = Constants.COLORS[this.configuration.level];
+        this.grid.seed();
+    }
+
+    showScore() {
+        document.querySelector( '#score' ).innerHTML = this.score;
     }
 
     checkState() {
         const cell = this.snake.head;
 
-        if( this.isOutside( cell ) || this.snake.ateItself()) {
+        if( this.isOutside( cell ) || this.snake.ateItself() ) {
             return -1;
         }
-        return 1;
+
+        if( this.grid.isApple( this.snake.head ) ) {
+            return 1;
+        }
+
+        return 0;
     }
 
     isOutside( cell ) {
@@ -100,5 +137,25 @@ export default class Game {
 
         this.grid.paint(ctx);
         this.snake.paint(ctx);
+    }
+
+    onKeyDown = ( event ) => {
+        console.log( event );
+        event.preventDefault();
+
+        switch( event.key ) {
+            case 'ArrowUp':
+                this.snake.setDirection( 'Up' );
+                break;
+            case 'ArrowDown':
+                this.snake.setDirection( 'Down' );
+                break;
+            case 'ArrowRight':
+                this.snake.setDirection( 'Right' );
+                break;
+            case 'ArrowLeft':
+                this.snake.setDirection( 'Left' );
+                break;
+        }
     }
 };

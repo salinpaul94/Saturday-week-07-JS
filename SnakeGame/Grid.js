@@ -66,4 +66,20 @@ export default class Grid {
             }
         )
     }
+    
+    isApple( c ) {
+        return this.apples.find(
+            cell => cell.x === c.x && cell.y === c.y
+        );
+    }
+
+    eat( c ) {
+        this.apples = this.apples.filter(
+            cell => !( cell.x === c.x && cell.y === c.y )
+        )
+    }
+
+    isDone() {
+        return this.apples.length === 0;
+    }
 }
